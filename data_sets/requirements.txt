@@ -1,0 +1,6 @@
+How to get the data-sets for this project:
+
+1. Follow this link https://divvy-tripdata.s3.amazonaws.com/index.html
+2. Download first 12 zip files (from the top)
+3. unzip files, ready to use in this directory
+
