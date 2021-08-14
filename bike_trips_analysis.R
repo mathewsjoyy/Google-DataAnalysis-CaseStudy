@@ -2,13 +2,16 @@
 # tidyverse for data import and wrangling
 # libridate for date functions
 # ggplot for visualization
+# data.table for certain functions
 
 # Install packages
-install.packages(c("tidyverse", "lubridate", "ggplot2"))
+install.packages(c("tidyverse", "lubridate", "ggplot2","data.table"))
 # Load in packages
 library(tidyverse)
 library(lubridate)
 library(ggplot2)
+library(data.table)
+
 
 getwd() # Displays current working directory
 setwd("/Users/mathe/OneDrive/Documents/Data analysis/R/Google-DataAnalysis-CaseStudy") # Set our working directory for this project
@@ -109,6 +112,46 @@ str(all_bike_trips)
 all_bike_trips$ride_length <- (as.double(difftime(all_bike_trips$end_time, all_bike_trips$start_time))) / 60
 
 glimpse(all_bike_trips)
+
+
+# Check for any negatives (invalid values) to prevent later conflicts
+sum(all_bike_trips$ride_length < 0)
+
+# We have been informed that the company had "test" stations used for quality checks
+# So we can see how many there are, we don't need to check end station name, as start
+# and end are going to be on the same row anyway so it doesn't matter when we come to delete
+# the rows
+sum(all_bike_trips$start_station_name %like% "test" +
+      all_bike_trips$start_station_name %like% "TEST" +
+      all_bike_trips$start_station_name %like% "Test")
+
+# So we have gathered there are 3367 tests, and 10552 negative values, so we can
+# remove these from the data-set as they can cause issues in the future. We should
+# create a new data frame for this as we are removing data
+
+all_bike_trips_v2 <- subset(all_bike_trips, ride_length > 0 & 
+                              !(all_bike_trips$start_station_name %like% "TEST" |
+                                 all_bike_trips$start_station_name %like% "test" |
+                                 all_bike_trips$start_station_name %like% "Test"))
+
+
+# We can also drop columns we don't need for our analysis such as latitude and
+# longitude values
+all_bike_trips_v2 <- all_bike_trips_v2 %>% select(-c(start_lat:end_lng))
+
+glimpse(all_bike_trips_v2)
+
+
+
+
+
+
+# Add columns that list the date, month, day, and year of each ride
+# This will allow us to aggregate ride data for each month, day, or year.
+# Before completing these operations we could only aggregate at the ride level
+
+all_bike_trips_v2 <- as.Date(all_bike_trips_v2$start_time) # The default is yyyy/mm
+
 
 
 
