@@ -17,7 +17,7 @@ getwd() # Displays current working directory
 setwd("/Users/mathe/OneDrive/Documents/Data analysis/R/Google-DataAnalysis-CaseStudy") # Set our working directory for this project
 
 
-# Importing the 12 datasets into R
+# Importing the 12 data sets into R
 apr20 <- read_csv("data_sets/202004-divvy-tripdata.csv")
 may20 <- read_csv("data_sets/202005-divvy-tripdata.csv")
 jun20 <- read_csv("data_sets/202006-divvy-tripdata.csv")
@@ -89,7 +89,6 @@ all_bike_trips <- bind_rows(apr20,may20,jun20,jul20,aug20,sep20,oct20,nov20,
                          dec20,jan21,feb21,mar21)
 
 # View/inspect the combined data frame
-str(all_bike_trips)
 summary(all_bike_trips) # Get a quick summary
 dim(all_bike_trips) # Have a look at the dimensions
 
@@ -109,7 +108,8 @@ str(all_bike_trips)
 
 # Add a column called ride length to find total trip duration in minutes
 # Find the trip / ride duration by finding diff between ended and started
-all_bike_trips$ride_length <- (as.double(difftime(all_bike_trips$end_time, all_bike_trips$start_time))) / 60
+all_bike_trips$ride_length <- (as.double(difftime(all_bike_trips$end_time,
+                                                  all_bike_trips$start_time))) / 60
 
 glimpse(all_bike_trips)
 
@@ -142,28 +142,48 @@ all_bike_trips_v2 <- all_bike_trips_v2 %>% select(-c(start_lat:end_lng))
 glimpse(all_bike_trips_v2)
 
 
-
-
-
-
 # Add columns that list the date, month, day, and year of each ride
 # This will allow us to aggregate ride data for each month, day, or year.
 # Before completing these operations we could only aggregate at the ride level
 
-all_bike_trips_v2 <- as.Date(all_bike_trips_v2$start_time) # The default is yyyy/mm
+all_bike_trips_v2$date <- as.Date(all_bike_trips_v2$start_time) # The default is yyyy/mm/dd
+all_bike_trips_v2$month <- format(as.Date(all_bike_trips_v2$date), "%m") #mm
+all_bike_trips_v2$day <- format(as.Date(all_bike_trips_v2$date), "%d") #dd
+all_bike_trips_v2$year <- format(as.Date(all_bike_trips_v2$date), "%Y") #yyyy
+all_bike_trips_v2$day_of_week <- format(as.Date(all_bike_trips_v2$date), "%a") #Sun, Mon
+
+
+# Check our data set for NA (null) values
+sum(is.na(all_bike_trips_v2) == FALSE) # Returns sum of non NA values
+sum(is.na(all_bike_trips_v2) == TRUE) # Returns sum of NA values
+# 1056983 (total NA values) is 2.03 % of 52132260 (total values)
+summary(all_bike_trips_v2)
+
+# We have gathered all the null values are in start_station_id and end_station_id
+# which are not important columns for us when we analyse, however in order to prevent
+# data bias we will keep the NA rows as the more important data is still present
+# Another option is to match name and id, by comparing to existing data, however
+# for our scope of this project it isn't necessary.
 
 
 
+# Run a few calculations to gain more insight into the data
+# Mean,min,max,medium of ride_length, mode of day_of_week 
+summary(all_trips_v2$trip_duration) # mean,min,max,medium
 
+# (R does not have a standard in-built function to calculate mode.)
+# Users defined mode function credit (https://www.tutorialspoint.com)
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
 
+getmode(all_bike_trips_v2$day_of_week) # Saturday is most common day
 
-
-
-
-
-
-
-
-
+# In depth table summary for customer types
+all_bike_trips_v2 %>% group_by(type_of_member) %>%
+  summarise(min_trip_duration = min(ride_length), max_trip_duration = max(ride_length),
+            mean_trip_duration = mean(ride_length), mode_week_day = getmode(day_of_week),
+            most_popular_bike_type = getmode(type_of_ride))
 
 
