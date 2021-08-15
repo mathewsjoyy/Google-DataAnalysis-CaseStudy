@@ -3,19 +3,20 @@
 # libridate for date functions
 # ggplot for visualization
 # data.table for certain functions
+# extrafont for changing fonts of plots
 
 # Install packages
-install.packages(c("tidyverse", "lubridate", "ggplot2","data.table"))
+install.packages(c("tidyverse", "lubridate", "ggplot2","data.table","ggthemes"))
 # Load in packages
 library(tidyverse)
 library(lubridate)
 library(ggplot2)
 library(data.table)
+library(ggthemes)
 
 
 getwd() # Displays current working directory
 setwd("/Users/mathe/OneDrive/Documents/Data analysis/R/Google-DataAnalysis-CaseStudy") # Set our working directory for this project
-
 
 # Importing the 12 data sets into R
 apr20 <- read_csv("data_sets/202004-divvy-tripdata.csv")
@@ -32,7 +33,7 @@ feb21 <- read_csv("data_sets/202102-divvy-tripdata.csv")
 mar21 <- read_csv("data_sets/202103-divvy-tripdata.csv")
 
 # Check all columns names are the exact same, so that we are be able to join them all
-# (they dont need to be in the exact order however)
+# (they don't need to be in the exact order however)
 colnames(apr20)
 colnames(may20)
 colnames(jun20)
@@ -61,7 +62,7 @@ sapply(feb21, typeof)
 sapply(mar21, typeof)
 
 # We can see start_station_id and end_station_id are char in dec20 - mar21 (should be double)
-# Can use the mutate function to change mutiple column datatypes
+# Can use the mutate function to change multiple column datatypes
 dec20 <- mutate(dec20, start_station_id = as.double(start_station_id),
                 end_station_id = as.double(end_station_id))
 jan21 <- mutate(jan21, start_station_id = as.double(start_station_id),
@@ -129,11 +130,13 @@ sum(all_bike_trips$start_station_name %like% "test" +
 # remove these from the data-set as they can cause issues in the future. We should
 # create a new data frame for this as we are removing data
 
-all_bike_trips_v2 <- subset(all_bike_trips, ride_length > 0 & 
-                              !(all_bike_trips$start_station_name %like% "TEST" |
-                                 all_bike_trips$start_station_name %like% "test" |
-                                 all_bike_trips$start_station_name %like% "Test"))
+# remove negative trip durations 
+all_bike_trips_v2 <- all_bike_trips[!(all_bike_trips$ride_length < 0),]
 
+#remove test rides
+all_bike_trips_v2<- all_bike_trips_v2[!((all_bike_trips_v2$start_station_name %like% "TEST" |
+                                 all_bike_trips_v2$start_station_name %like% "test" |
+                                 all_bike_trips_v2$start_station_name %like% "Test")),]
 
 # We can also drop columns we don't need for our analysis such as latitude and
 # longitude values
@@ -147,7 +150,7 @@ glimpse(all_bike_trips_v2)
 # Before completing these operations we could only aggregate at the ride level
 
 all_bike_trips_v2$date <- as.Date(all_bike_trips_v2$start_time) # The default is yyyy/mm/dd
-all_bike_trips_v2$month <- format(as.Date(all_bike_trips_v2$date), "%m") #mm
+all_bike_trips_v2$month <- format(as.Date(all_bike_trips_v2$date), "%b_%Y") #May_2020, Jul_2020
 all_bike_trips_v2$day <- format(as.Date(all_bike_trips_v2$date), "%d") #dd
 all_bike_trips_v2$year <- format(as.Date(all_bike_trips_v2$date), "%Y") #yyyy
 all_bike_trips_v2$day_of_week <- format(as.Date(all_bike_trips_v2$date), "%a") #Sun, Mon
@@ -156,7 +159,7 @@ all_bike_trips_v2$day_of_week <- format(as.Date(all_bike_trips_v2$date), "%a") #
 # Check our data set for NA (null) values
 sum(is.na(all_bike_trips_v2) == FALSE) # Returns sum of non NA values
 sum(is.na(all_bike_trips_v2) == TRUE) # Returns sum of NA values
-# 1056983 (total NA values) is 2.03 % of 52132260 (total values)
+# 1057208 (total NA values) is 2.03 % of 52132260 (total values)
 summary(all_bike_trips_v2)
 
 # We have gathered all the null values are in start_station_id and end_station_id
@@ -185,5 +188,49 @@ all_bike_trips_v2 %>% group_by(type_of_member) %>%
   summarise(min_trip_duration = min(ride_length), max_trip_duration = max(ride_length),
             mean_trip_duration = mean(ride_length), mode_week_day = getmode(day_of_week),
             most_popular_bike_type = getmode(type_of_ride))
+
+# See the average ride time by each day for members vs casual users
+aggregate(all_bike_trips_v2$ride_length ~ all_bike_trips_v2$type_of_member +
+            all_bike_trips_v2$day_of_week, FUN = mean)
+# Notice that the days of the week are out of order. Let's fix that.
+all_bike_trips_v2$day_of_week <- ordered(all_bike_trips_v2$day_of_week, 
+                                    levels=c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"))
+# We can then call the aggregate function above again...
+aggregate(all_bike_trips_v2$ride_length ~ all_bike_trips_v2$type_of_member +
+            all_bike_trips_v2$day_of_week, FUN = mean)
+
+# We can also fix order of month column while we are at it
+all_bike_trips_v2$month <- ordered(all_bike_trips_v2$month,
+                                   levels=c("Apr_2020", "May_2020", "Jun_2020", "Jul_2020",
+                                   "Aug_2020", "Sep_2020", "Oct_2020", "Nov_2020", "Dec_2020",
+                                   "Jan_2021", "Feb_2021", "Mar_2021"))
+
+# Analyze ridership data by type and day of week
+all_bike_trips_v2 %>% group_by(type_of_member, day_of_week) %>%
+              summarise(num_of_rides = n(), avg_ride_length_mins = mean(ride_length)) %>%
+              arrange(type_of_member, desc(num_of_rides))
+
+
+# Lets visualize the data we gathered from above
+all_bike_trips_v2 %>% group_by(type_of_member, day_of_week) %>%
+  summarise(num_of_rides = n(), avg_ride_length_mins = mean(ride_length)) %>%
+  arrange(type_of_member, desc(num_of_rides)) %>%
+  ggplot(aes(x=num_of_rides ,y=day_of_week, fill=type_of_member)) +
+  labs(title="Day of the week VS Number of rides", subtitle="Sample of 2 customer types (casual or member)",
+       x="Number Of Rides", y="Day Of The Week", fill="Member Type")+
+  geom_col(width=0.4, position = "dodge", orientation = "y") +
+  scale_x_continuous(labels = function(x) format(x, scientific = FALSE)) +# We want to scale x axis to no have scientific notation
+  theme_fivethirtyeight() +
+  theme(axis.title = element_text()) 
+  # When adding a plot theme is removing axis labels so we re add them 'axis.title = element_text()'
+
+# Export vis (placed into visualization folder)
+ggsave("visualizations/bike_viz_1.png")
+
+
+
+
+
+
 
 
