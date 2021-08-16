@@ -1,11 +1,10 @@
 # Install required packages
 # tidyverse for data import and wrangling
-# libridate for date functions
+# lubridate for date functions
 # ggplot for visualization
 # data.table for certain functions
 # extrafont for changing fonts of plots
 
-# Install packages
 install.packages(c("tidyverse", "lubridate", "ggplot2","data.table","ggthemes"))
 # Load in packages
 library(tidyverse)
@@ -14,6 +13,8 @@ library(ggplot2)
 library(data.table)
 library(ggthemes)
 
+# Set font to use for visualizations later
+windowsFonts(font = windowsFont("Rockwell"))
 
 getwd() # Displays current working directory
 setwd("/Users/mathe/OneDrive/Documents/Data analysis/R/Google-DataAnalysis-CaseStudy") # Set our working directory for this project
@@ -83,7 +84,7 @@ is.double(mar21$start_station_id)
 is.double(mar21$end_station_id)
 
 
-# We can now combine all the cleaned datasets into one 
+# We can now combine all the cleaned data sets into one 
 # We cannot use the common rbind() function as it changes the datetime format
 # of the started_at and ended_at columns to numeric, so we use bind_rows() instead 
 all_bike_trips <- bind_rows(apr20,may20,jun20,jul20,aug20,sep20,oct20,nov20,
@@ -155,6 +156,16 @@ all_bike_trips_v2$day <- format(as.Date(all_bike_trips_v2$date), "%d") #dd
 all_bike_trips_v2$year <- format(as.Date(all_bike_trips_v2$date), "%Y") #yyyy
 all_bike_trips_v2$day_of_week <- format(as.Date(all_bike_trips_v2$date), "%a") #Sun, Mon
 
+# We have to use POSIXct object when dealing with times
+# We are first striping the date and just leaving the time, this get formatted as a chr
+all_bike_trips_v2$time <- format(as.POSIXct(all_bike_trips_v2$start_time), format = "%H:%M")
+# We then the time column into format - POSIXct, however we still will get a date,
+# but this will just be our current date, so if we want to use this time column we just need
+# to reformat it when used in a visualizations
+all_bike_trips_v2$time <- as.POSIXct(all_bike_trips_v2$time, format = "%H:%M")
+# Reason we cant just leave the time in chr form
+# is because ggplot doesn't support times in any other format then POSIXct
+
 
 # Check our data set for NA (null) values
 sum(is.na(all_bike_trips_v2) == FALSE) # Returns sum of non NA values
@@ -199,11 +210,19 @@ all_bike_trips_v2$day_of_week <- ordered(all_bike_trips_v2$day_of_week,
 aggregate(all_bike_trips_v2$ride_length ~ all_bike_trips_v2$type_of_member +
             all_bike_trips_v2$day_of_week, FUN = mean)
 
-# We can also fix order of month column while we are at it
+# We can also fix order of month column as well
 all_bike_trips_v2$month <- ordered(all_bike_trips_v2$month,
                                    levels=c("Apr_2020", "May_2020", "Jun_2020", "Jul_2020",
                                    "Aug_2020", "Sep_2020", "Oct_2020", "Nov_2020", "Dec_2020",
                                    "Jan_2021", "Feb_2021", "Mar_2021"))
+
+
+### At this point our data has been cleaned and updated, so we can save and export it
+# into a csv file for future use
+# R give each row a num so we can set it to FALSE to remove this
+write.csv(all_bike_trips_v2,file="data_sets/BikeCleanedData.csv",row.names=FALSE) 
+
+
 
 # Analyze ridership data by type and day of week
 all_bike_trips_v2 %>% group_by(type_of_member, day_of_week) %>%
@@ -212,25 +231,122 @@ all_bike_trips_v2 %>% group_by(type_of_member, day_of_week) %>%
 
 
 # Lets visualize the data we gathered from above
+# Specify font for use in chart
+
 all_bike_trips_v2 %>% group_by(type_of_member, day_of_week) %>%
-  summarise(num_of_rides = n(), avg_ride_length_mins = mean(ride_length)) %>%
+  summarise(num_of_rides = n()) %>%
   arrange(type_of_member, desc(num_of_rides)) %>%
   ggplot(aes(x=num_of_rides ,y=day_of_week, fill=type_of_member)) +
-  labs(title="Day of the week VS Number of rides", subtitle="Sample of 2 customer types (casual or member)",
-       x="Number Of Rides", y="Day Of The Week", fill="Member Type")+
+  labs(title="Day of the week vs Number of rides", subtitle="Sample of 2 customer types (casual or member)",
+       caption="Data collected by Motivate International Inc.",x="Number Of Rides", y="Day Of The Week", fill="Member Type")+
   geom_col(width=0.4, position = "dodge", orientation = "y") +
-  scale_x_continuous(labels = function(x) format(x, scientific = FALSE)) +# We want to scale x axis to no have scientific notation
+  scale_x_continuous(labels = function(x) format(x, scientific = FALSE), n.breaks = 6) +# We want to scale x axis to no have scientific notation
   theme_fivethirtyeight() +
-  theme(axis.title = element_text()) 
+  theme(axis.title = element_text(),text = element_text(family = "font")) 
   # When adding a plot theme is removing axis labels so we re add them 'axis.title = element_text()'
 
 # Export vis (placed into visualization folder)
 ggsave("visualizations/bike_viz_1.png")
 
 
+# Same as above visualizations but for month
+all_bike_trips_v2 %>% group_by(type_of_member, month) %>%
+  summarise(num_of_rides = n()) %>%
+  arrange(type_of_member, desc(num_of_rides)) %>%
+  ggplot(aes(x=num_of_rides ,y=month, fill=type_of_member)) +
+  labs(title="Month vs Number of rides", subtitle="Sample of 2 customer types (casual or member)",
+       caption="Data collected by Motivate International Inc.",x="Number Of Rides", y="Month", fill="Member Type")+
+  geom_col(width=0.4, position = "dodge", orientation = "y") +
+  scale_x_continuous(labels = function(x) format(x, scientific = FALSE), n.breaks = 6) +
+  theme_fivethirtyeight() +
+  theme(axis.title = element_text(),text = element_text(family = "font")) 
+
+ggsave("visualizations/bike_viz_11.png")
 
 
+# Let's create a visualization for average ride duration
+all_bike_trips_v2 %>% group_by(type_of_member, day_of_week) %>%
+  summarise(avg_ride_length_mins = mean(ride_length)) %>%
+  ggplot(aes(x=day_of_week,y=avg_ride_length_mins,color=type_of_member)) +
+  geom_point() + 
+  labs(title="Average ride length per day of the week",subtitle = "Sample of 2 customer type (casual or member)",
+        caption="Data collected by Motivate International Inc.",color="Member Type",x="Day Of The Week",
+        y="Average Ride Length") +
+  theme_fivethirtyeight() +
+  theme(axis.title = element_text(),text = element_text(family = "font"))+
+  annotate("text",x=4, y=30, label="Casual members have a \nsignificantly longer avg rid length", size=3, colour="brown")
+
+# ggsave("visualizations/bike_viz_2.png")
 
 
+# Visualization of ride type Vs number of trips by type of customer
+all_bike_trips_v2 %>% group_by(type_of_member, type_of_ride) %>%
+  summarise(num_of_rides=n()) %>%
+  ggplot(aes(x=type_of_ride,y=num_of_rides,fill=type_of_member)) +
+  geom_col(width = 0.4) +
+  scale_y_continuous(labels = function(y) format(y, scientific = FALSE), n.breaks = 6) +
+  labs(title="Ride type vs Number of rides",subtitle = "Sample of 2 customer type (casual or member)",
+       caption="Data collected by Motivate International Inc.",fill="Member Type",x="Type Of Ride",
+       y="Num Of Rides") +
+  theme_fivethirtyeight() +
+  theme(axis.title = element_text(),text = element_text(family = "font"))
+
+# ggsave("visualizations/bike_viz_3.png")
 
 
+# Visualization of bike demand over 24 hr period (a day)
+all_bike_trips_v2 %>% group_by(type_of_member, time) %>%
+  summarise(num_of_rides=n()) %>%
+  ggplot(aes(x=time, y=num_of_rides, color=type_of_member)) +
+  geom_line() +
+  labs(title="Bike popularity throughout the day",subtitle = "Sample of 2 customer type (casual or member)",
+       caption="Data collected by Motivate International Inc.",color="Member Type",x="Time of day",
+       y="Num Of Rides") +
+  scale_x_datetime(date_breaks = "2 hour",date_labels = "%H:%M") +
+  theme_fivethirtyeight() +
+  theme(axis.title = element_text(), axis.text.x = element_text(angle = 90),text = element_text(family = "font"))
+  
+# ggsave("visualizations/bike_viz_4.png")
+  
+
+# Make a visualization, doughnut chart of percentage of each customer type
+# See actual values
+table(all_bike_trips_v2$type_of_member)
+
+#casual  member 
+#1423876 2051968
+
+# Make a temp df of the data we got
+df <- data.frame(
+  category =c("casual", "member"),
+  count = c(1423876,2051968)
+)
+
+# Compute percentages
+df$fraction = df$count / sum(df$count)
+
+# Compute the cumulative percentages (top of each rectangle)
+df$ymax = cumsum(df$fraction)
+
+# Compute the bottom of each rectangle
+df$ymin = c(0, head(df$ymax, n=-1))
+
+# Compute label position
+df$labelPos <- (df$ymax + df$ymin) / 2
+
+# Compute a good label
+df$label <- paste0(df$category, "\n (", floor(df$fraction*100),"%)")
+
+# Make the plot
+ggplot(df, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=category)) +
+  geom_rect() +
+  geom_text(x=2, aes(y=labelPos, label=label), size=3) +
+  coord_polar(theta="y") + 
+  xlim(c(-1, 4)) +
+  theme_void() + # Gets rid of unnecessary background, axis, labels
+  theme(legend.position = "none") +
+  labs(title="Percentage of each customer type",
+     caption="Data collected by Motivate International Inc.") +
+  theme(text = element_text(family = "font"))
+
+# ggsave("visualizations/bike_viz_4.png")
