@@ -17,7 +17,8 @@ library(ggthemes)
 windowsFonts(font = windowsFont("Rockwell"))
 
 getwd() # Displays current working directory
-setwd("/Users/mathe/OneDrive/Documents/Data analysis/R/Google-DataAnalysis-CaseStudy") # Set our working directory for this project
+# Set our working directory for this project
+setwd("/Users/mathe/OneDrive/Documents/Data analysis/R/Google-DataAnalysis-CaseStudy") 
 
 # Importing the 12 data sets into R
 apr20 <- read_csv("data_sets/202004-divvy-tripdata.csv")
@@ -131,13 +132,14 @@ sum(all_bike_trips$start_station_name %like% "test" +
 # remove these from the data-set as they can cause issues in the future. We should
 # create a new data frame for this as we are removing data
 
-# remove negative trip durations 
+# remove negative trip duration 
 all_bike_trips_v2 <- all_bike_trips[!(all_bike_trips$ride_length < 0),]
 
 #remove test rides
 all_bike_trips_v2<- all_bike_trips_v2[!((all_bike_trips_v2$start_station_name %like% "TEST" |
                                  all_bike_trips_v2$start_station_name %like% "test" |
                                  all_bike_trips_v2$start_station_name %like% "Test")),]
+
 
 # We can also drop columns we don't need for our analysis such as latitude and
 # longitude values
@@ -178,7 +180,6 @@ summary(all_bike_trips_v2)
 # data bias we will keep the NA rows as the more important data is still present
 # Another option is to match name and id, by comparing to existing data, however
 # for our scope of this project it isn't necessary.
-
 
 
 # Run a few calculations to gain more insight into the data
@@ -231,8 +232,6 @@ all_bike_trips_v2 %>% group_by(type_of_member, day_of_week) %>%
 
 
 # Lets visualize the data we gathered from above
-# Specify font for use in chart
-
 all_bike_trips_v2 %>% group_by(type_of_member, day_of_week) %>%
   summarise(num_of_rides = n()) %>%
   arrange(type_of_member, desc(num_of_rides)) %>%
@@ -246,7 +245,7 @@ all_bike_trips_v2 %>% group_by(type_of_member, day_of_week) %>%
   # When adding a plot theme is removing axis labels so we re add them 'axis.title = element_text()'
 
 # Export vis (placed into visualization folder)
-ggsave("visualizations/bike_viz_1.png")
+# ggsave("visualizations/bike_viz_1.png")
 
 
 # Same as above visualizations but for month
@@ -261,7 +260,7 @@ all_bike_trips_v2 %>% group_by(type_of_member, month) %>%
   theme_fivethirtyeight() +
   theme(axis.title = element_text(),text = element_text(family = "font")) 
 
-ggsave("visualizations/bike_viz_11.png")
+# ggsave("visualizations/bike_viz_11.png")
 
 
 # Let's create a visualization for average ride duration
@@ -345,8 +344,9 @@ ggplot(df, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=category)) +
   xlim(c(-1, 4)) +
   theme_void() + # Gets rid of unnecessary background, axis, labels
   theme(legend.position = "none") +
-  labs(title="Percentage of each customer type",
+  labs(title="Percentage of each customer type", subtitle="Helps us see what % of customers we can try
+       to convert to annual memberships",
      caption="Data collected by Motivate International Inc.") +
   theme(text = element_text(family = "font"))
 
-# ggsave("visualizations/bike_viz_4.png")
+# ggsave("visualizations/bike_viz_5.png")

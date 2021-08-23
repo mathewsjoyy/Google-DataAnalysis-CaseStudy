@@ -1,0 +1,153 @@
+---
+# This section is in yaml (metadata), you can customize alot!
+title: "Google Bike Trips Case Study - Report"
+author: "Mathews Joy"
+date: "10/08/2021"
+# You can add a table of contents (TOC) using the toc option and specify the depth of headers that it
+#applies to using the toc_depth option. We use 2 as we only have 2 headers
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+    toc: true
+   #toc_float: true # This will float the TOC on the left so you can always see it
+---
+
+<!-- You can use direct css in the markdown file to customize thing such as font size -->
+<style type="text/css">
+  body{
+  font-size: 10pt;
+}
+</style>
+
+
+<!-- is used to specify any global settings to be applied to the R Markdown script. The example sets all code chunks as “echo=TRUE”, meaning they will be included in the final rendered version. You can specify other settings in this code chunk, such as the working directory. -->
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview of the project
+
+#### Introduction
+
+This case study is the final capstone project for the Google [Data Analytics Professional Certificate](https://www.coursera.org/professional-certificates/google-data-analytics). We are helping a company located in
+chicago called "Cyclistic", and we are working as apart of the data anlytics team.
+
+Cyclistic, a bike-share program that features more than 5,800 bicycles and 600 docking stations. Cyclistic sets itself
+apart by also offering reclining bikes, hand tricycles, and cargo bikes, making bike-share more inclusive to people with
+disabilities and riders who can’t use a standard two-wheeled bike. The majority of riders opt for traditional bikes; about
+8% of riders use the assistive options. Cyclistic users are more likely to ride for leisure, but about 30% use them to
+commute to work each day.
+
+This report will walk through the 6 phases of data analysis in detail. I will also include a summary section (Ask Phase) at the end of the recommendations i think Cyclistic should take on board, in order to successfully grow there business further.
+
+<center><img src="images/6phases.png" width="400" height="400"/></center><center><a style="font-size:10px">Source: Google Data Analyst Course</a></center>
+
+
+## Ask Phase
+
+#### Objectives
+
+Our primary questions to explore and gather information on are:
+
+* How do annual members and casual riders use Cyclistic bikes differently?
+Cyclistic has 2 types of members "casual" and "member". Customers who purchase single-ride or full-day passes are referred to as casual riders. Customers who purchase annual memberships are Cyclistic members.
+* How can we maximize annual members?
+Overall member customers are more profitable then casual customers, so we need to try find out how to convert more casual riders
+to members.
+
+#### Key Stakeholders To Consider
+
+**Lily Moreno**: The director of marketing and your manager. Moreno is responsible for the development of campaigns
+and initiatives to promote the bike-share program.
+
+**Cyclistic executive team**: The notoriously detail-oriented executive team will decide whether to approve the
+recommended marketing program.
+
+(Other stakeholders include investors, employees, customers, and suppliers)
+
+
+## Prepare Phase
+
+#### The data source
+
+The data source is a set of [12 different data sets](https://divvy-tripdata.s3.amazonaws.com/index.html), each one containing the information for every month of the year (April 2020 - March 2021). The data is provided by Motivate International Inc. under this
+[licence](https://www.divvybikes.com/data-license-agreement). Each data set was prior cleaned to remove any riders personal information,
+to prevent breaching any data confidentiality regulations.
+
+The data source was used as it meets all the **"ROCCC" (Reliable, Original, Comprehensive, Current, Cited)** features.  
+- The data is reliable as it is provided by a reputable source (Google).  
+- Data is original as it is coming from the primary source, and not from a second/third party source.  
+- Data is comprehensive because it contains sufficient data that we can use to gather useful insights.   
+- The data is current as it provides us with data sets within the past year (at the time of making this report).  
+- Data sets used have been cited / vetted.
+
+
+## Process Phase
+
+#### Tools I used and why
+
+For this case study I decided the best tool to use was R as it provides easy manipulation and processing of large data sets, and also
+provides me with the ability to make clear and comprehensive visualizations. I decided not to use SQL or Excel as excel struggles with larger data sets, and SQL wasn't very necessary for this large as we wasn't working with any databases. There is also the option to use
+Tableau for the visualizations, however since R already provides ``ggplot2`` which serves the needs for this specific project I decided not to use Tableau. Furthermore by using R it helps me learn to properly for the first time.
+
+#### How I ensured data integrity & data is clean to use for analysis
+
+I first loaded all 12 data sets into R and examined the structure, datatypes and naming for inconsistency across the 12 datasets.
+I noticed ```start_station_id``` and ```end_station_id``` columns are char datatype in dec20 - mar21 (should be double), So I converted then to double to keep consistency when we joining all 12 data sets into 1.After joining all 12 data sets into 1, we can notice that some of the naming of the columns could be more readable, e.g ```member_casual``` can be changed to ```type_of_member```.  
+A new column called ```ride_length``` was added to find total trip duration in minutes by finding diff between ended and started dates, this can be used for further analysis later. After adding this new column we need to check for any negatives values, also We have been informed that the company had "test" stations used for quality checks So we can see how many there are. Have checking we have gathered there are 3367 tests, and 10552 negative values, so we can remove these from the data-set as they can cause issues in the future. We should create a new data frame for this as we are removing data.  
+
+Another important aspect I considered to ensure data integrity was to account for any null/empty values. I gathered there was ```1057208``` total NA values which is is **2.03%** of ```52132260``` (total values). We have concluded all the null values are in start_station_id and end_station_id which are not important columns for us when we analyse, however in order to prevent
+data bias we will keep the NA rows as the more important data is still present. Another option is to match name and id, by comparing to existing data, however for our scope of this project it isn't necessary.
+
+There was also further cleaning done including removing columns not needed from the data set,fixing structural issues and adding columns for analysis. The full explanation of the cleaning process with the code can be found in the R script file (*bike_trips_analysis.R*).
+
+Finally I saved the fully cleaned data set for future use, and also as a backup. 
+```{r,results="hide",message = FALSE, warning = FALSE, eval=FALSE}
+write.csv(all_bike_trips_v2,file="data_sets/BikeCleanedData.csv",row.names=FALSE)
+```
+This data can also be viewed for use by finding the *BikeCleanedData.csv* file.
+
+
+## Analyze & Share Phase
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+<!-- We can add code chunks by clicking the green icon with a c in it, give it a title like 'cars' -->
+<!-- Then insert what code you want to show the stakeholders in the back ticks -->
+<!-- You can also run the code and check for errors, and select stuff like wether to show these errors, etc. -->
+```{r cars}
+summary(cars)
+```
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
