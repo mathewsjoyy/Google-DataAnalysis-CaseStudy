@@ -204,6 +204,7 @@ all_bike_trips_v2 %>% group_by(type_of_member) %>%
 # See the average ride time by each day for members vs casual users
 aggregate(all_bike_trips_v2$ride_length ~ all_bike_trips_v2$type_of_member +
             all_bike_trips_v2$day_of_week, FUN = mean)
+
 # Notice that the days of the week are out of order. Let's fix that.
 all_bike_trips_v2$day_of_week <- ordered(all_bike_trips_v2$day_of_week, 
                                     levels=c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"))
@@ -222,7 +223,6 @@ all_bike_trips_v2$month <- ordered(all_bike_trips_v2$month,
 # into a csv file for future use
 # R give each row a num so we can set it to FALSE to remove this
 write.csv(all_bike_trips_v2,file="data_sets/BikeCleanedData.csv",row.names=FALSE) 
-
 
 
 # Analyze ridership data by type and day of week
@@ -306,7 +306,7 @@ all_bike_trips_v2 %>% group_by(type_of_member, time) %>%
   theme(axis.title = element_text(), axis.text.x = element_text(angle = 90),text = element_text(family = "font"))
   
 # ggsave("visualizations/bike_viz_4.png")
-  
+
 
 # Make a visualization, doughnut chart of percentage of each customer type
 # See actual values
