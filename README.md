@@ -248,8 +248,7 @@ What ride type does each customer type prefer?
 ------------------------------------------------------------------------
 
 <center>
-**How does the day of the week affect the total number of rides per
-customer type?**
+**How does the day of the week affect the total number of rides per customer type?**
 </center>
 
 ``` r
