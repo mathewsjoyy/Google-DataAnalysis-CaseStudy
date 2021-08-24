@@ -1,4 +1,7 @@
 Google Bike Trips Case Study - Report
+
+### To view the full r markdown version of this report [CLICK ME](https://google-casestudy-mathewsjoy.netlify.app/)!
+
 ================
 Mathews Joy
 10/08/2021
