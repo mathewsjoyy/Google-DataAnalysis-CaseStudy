@@ -6,8 +6,7 @@ date: "10/08/2021"
 # You can add a table of contents (TOC) using the toc option and specify the depth of headers that it
 #applies to using the toc_depth option. We use 2 as we only have 2 headers
 output:
-  rmarkdown::github_document:
-    highlight: github
+  github_document:
     toc: true
    #toc_float: true # This will float the TOC on the left so you can always see it
 ---
