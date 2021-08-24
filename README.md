@@ -195,10 +195,9 @@ members.
 
 ------------------------------------------------------------------------
 
-<center>
+
 **First, we can find the percentage of the 2 different types of
 customers, both member and casual.**
-</center>
 
 ``` r
 # Make a temp df of the data we got
@@ -247,9 +246,7 @@ What ride type does each customer type prefer?
 
 ------------------------------------------------------------------------
 
-<center>
 **How does the day of the week affect the total number of rides per customer type?**
-</center>
 
 ``` r
 all_bike_trips_v2 %>% group_by(type_of_member, day_of_week) %>%
@@ -280,10 +277,8 @@ parents/those who have full-time jobs.
 
 ------------------------------------------------------------------------
 
-<center>
 **How does the month of the year affect the total number of rides per
 customer type?**
-</center>
 
 ``` r
 all_bike_trips_v2 %>% group_by(type_of_member, month) %>%
@@ -316,9 +311,7 @@ throughout the year.
 
 ------------------------------------------------------------------------
 
-<center>
 **Does day of the week affect customers average ride duration?**
-</center>
 
 ``` r
 all_bike_trips_v2 %>% group_by(type_of_member, day_of_week) %>%
@@ -351,9 +344,7 @@ consistent throughout the days of the week, unlike casual riders.
 
 ------------------------------------------------------------------------
 
-<center>
 **What ride type does each type of customer prefer?**
-</center>
 
 ``` r
 all_bike_trips_v2 %>% group_by(type_of_member, type_of_ride) %>%
@@ -387,9 +378,7 @@ fleet.
 
 ------------------------------------------------------------------------
 
-<center>
 **What is the demand of bikes over a 24 hour period (1 day)?**
-</center>
 
 ``` r
 all_bike_trips_v2 %>% group_by(type_of_member, time) %>%
