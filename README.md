@@ -1,8 +1,8 @@
-Google Bike Trips Case Study - Report
+## Google Bike Trips Case Study - Report
 
-[![Visits Badge](https://badges.pufler.dev/visits/mathewsjoyy/Google-DataAnalysis-CaseStudy)](https://badges.pufler.dev) [![Contributors Display](https://badges.pufler.dev/contributors/mathewsjoyy/Google-DataAnalysis-CaseStudy?size=50&padding=5&bots=true)](https://badges.pufler.dev)
+[![Visits Badge](https://badges.pufler.dev/visits/mathewsjoyy/Google-DataAnalysis-CaseStudy)](https://badges.pufler.dev) [![Contributors Display](https://badges.pufler.dev/contributors/mathewsjoyy/Google-DataAnalysis-CaseStudy?size=30&padding=8&bots=true)](https://badges.pufler.dev)
 
-### To view the full r markdown version of this report [CLICK ME](https://google-casestudy-mathewsjoy.netlify.app/)!
+### To view the full R markdown version of this report [CLICK ME](https://google-casestudy-mathewsjoy.netlify.app/)!
 
 ================  
 Mathews Joy
