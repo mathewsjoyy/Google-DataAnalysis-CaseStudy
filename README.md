@@ -1,8 +1,10 @@
 Google Bike Trips Case Study - Report
 
+[![Visits Badge](https://badges.pufler.dev/visits/mathewsjoyy/Google-DataAnalysis-CaseStudy)](https://badges.pufler.dev)
+
 ### To view the full r markdown version of this report [CLICK ME](https://google-casestudy-mathewsjoy.netlify.app/)!
 
-================
+================  
 Mathews Joy
 10/08/2021
 
